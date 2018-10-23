@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <dimen name="campaigns_list_divider_size">8dp</dimen>
+  <dimen name="campaigns_list_header_text_size">24dp</dimen>
+  <dimen name="campaings_list_photo_placeholder_height">300dp</dimen>
+  <dimen name="campaigns_list_name_margin">8dp</dimen>
+</resources>
