@@ -1,11 +1,13 @@
 package com.example.lukasz.campaignsviewer.ui.campaingslist
 
+import android.content.Context
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.example.lukasz.campaignsviewer.R
 import com.example.lukasz.campaignsviewer.data.CampaignData
+import com.example.lukasz.campaignsviewer.ui.campaigndetails.CampaignDetailsActivity
 import com.example.lukasz.campaignsviewer.util.RectangleTransformation
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
@@ -35,6 +37,13 @@ class CampaignsAdapter : RecyclerView.Adapter<CampaignsAdapter.ViewHolder>() {
     holder.view.name_text_view.text = data[position].name
 
     setupPhoto(position, holder)
+
+    holder.view.setOnClickListener {
+      showCampaignDetails(
+        holder.view.context,
+        data[position].image.url,
+        data[position].name,
+        data[position].description) }
   }
 
   private fun setupPhoto(position: Int, holder: ViewHolder) {
@@ -50,6 +59,11 @@ class CampaignsAdapter : RecyclerView.Adapter<CampaignsAdapter.ViewHolder>() {
 
         override fun onError(e: Exception?) {}
       })
+  }
+
+  private fun showCampaignDetails(context: Context, photoUrl: String, campaignName: String, campaignDescription: String) {
+    val intent = CampaignDetailsActivity.intent(context, photoUrl, campaignName, campaignDescription)
+    context.startActivity(intent)
   }
 
   override fun getItemCount() = data.size
