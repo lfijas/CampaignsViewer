@@ -8,4 +8,5 @@
   <dimen name="campaign_details_description_text_size">16dp</dimen>
   <dimen name="campaign_details_text_inside_padding">4dp</dimen>
   <dimen name="campaign_details_text_outside_padding">12dp</dimen>
+  <dimen name="campaign_details_fab_margin">16dp</dimen>
 </resources>

@@ -1,13 +1,21 @@
 package com.example.lukasz.campaignsviewer.ui.campaigndetails
 
+import android.Manifest
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
+import android.support.design.widget.Snackbar
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import com.example.lukasz.campaignsviewer.R
+import com.example.lukasz.campaignsviewer.util.Event
+import com.example.lukasz.campaignsviewer.util.PERMISSIONS_REQUEST_PHONE_CALL
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.campaign_details_activity.*
@@ -45,6 +53,8 @@ class CampaignDetailsActivity : AppCompatActivity() {
     if (savedInstanceState == null) {
       setupViewModelData()
     }
+
+    fab.setOnClickListener { viewModel.handleFABClick() }
   }
 
   private fun setupViewModel() {
@@ -52,6 +62,9 @@ class CampaignDetailsActivity : AppCompatActivity() {
     viewModel.photoUrl.observe(this, Observer { loadPhoto(it) })
     viewModel.campaignName.observe(this, Observer { loadCampaignName(it) })
     viewModel.campaignDescription.observe(this, Observer { loadCampaignDescription(it) })
+    viewModel.permissionRequestEvent.observe(this, Observer { requestPermission(it) })
+    viewModel.phoneNumberEvent.observe(this, Observer { makePhoneCall(it) })
+    viewModel.snackBarMessageEvent.observe(this, Observer { showSnackbar(it) })
   }
 
   private fun setupViewModelData() {
@@ -82,5 +95,39 @@ class CampaignDetailsActivity : AppCompatActivity() {
 
   private fun loadCampaignDescription(campaignDescription: String?) {
     description_text_view.text = campaignDescription
+  }
+
+  private fun requestPermission(permissionEvent: Event<String>?) {
+    permissionEvent?.getEventData()?.let {
+      if (ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+        ActivityCompat.requestPermissions(this, arrayOf(it), PERMISSIONS_REQUEST_PHONE_CALL)
+      } else {
+        viewModel.onPermissionResult(it, true)
+      }
+    }
+
+  }
+
+  override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    when (requestCode) {
+      PERMISSIONS_REQUEST_PHONE_CALL -> {
+        val granted = grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED
+        viewModel.onPermissionResult(Manifest.permission.CALL_PHONE, granted)
+      }
+    }
+  }
+
+  @SuppressWarnings("MissingPermission")
+  private fun makePhoneCall(phoneNumberUriEvent: Event<Uri>?) {
+    phoneNumberUriEvent?.getEventData()?.let {
+      val intent = Intent(Intent.ACTION_CALL, it)
+      startActivity(intent)
+    }
+  }
+
+  private fun showSnackbar(messageEvent: Event<Int>?) {
+    messageEvent?.getEventData()?.let {
+      Snackbar.make(campaign_details_activity_root, it, Snackbar.LENGTH_LONG).show()
+    }
   }
 }
